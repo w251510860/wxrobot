@@ -81,3 +81,17 @@ class RespMessage(object):
         if resp.status_code == 200 and resp.json()['result'] == 0:
             return resp.json()['content']
         return "嗯! 你说的对！(傻子模式)"
+
+    def send_msg(self):
+        # 用于定时人物，发送消息
+        return self.weather_searche('上海')
+
+    @staticmethod
+    def check_id_card_validate(bank_card_num):
+        # 校验银行卡号有效性
+        url = f'https://ccdcapi.alipay.com/validateAndCacheCardInfo.json?_input_charset' \
+            f'=utf-8&cardNo={bank_card_num}%20&cardBinCheck=true'
+        ret = requests.get(url)
+        if ret.status_code == 200 and ret.json().get('stat', None):
+            return ret.json()['validated']
+        return '服务已弃用'

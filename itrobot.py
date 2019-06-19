@@ -22,7 +22,6 @@ def is_work_time():
 @newInstance.msg_register('Text')
 def text_reply(msg):
     text = msg.text.strip()
-    print(f'text -> {text}')
     if text.lower() == "help":
         return u"[老爸在修仙，现在我是山大王ψ(｀∇´)ψ]\n输入信息 我们就可以愉快的聊天啦~\n 获取联系方式请回复phone" \
                u" \n例如:北京天气\n讲个笑话\n故事来一个\n......".format(static.NICKNAME)
@@ -45,10 +44,10 @@ def send_task():
     while True:
         current_time = time.localtime(time.time())
         # 定时发送销售
-        if current_time.tm_hour % 1 == 0 and current_time.tm_min % 30 == 0 and current_time.tm_sec == 0:
+        if current_time.tm_hour % 1 == 0 and current_time.tm_min % 30 == 0:
             replay = u'时间: %s' % (resp_msg.get_current_system_time())
             itchat.send(replay, toUserName="filehelper")
-        time.sleep(1)
+        time.sleep(1000)
 
 
 def lc():
