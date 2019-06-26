@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="038026fb-f72e-4bbe-954b-7558c58cbe53" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/itrobot.py" beforeDir="false" afterPath="$PROJECT_DIR$/itrobot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resp_message.py" beforeDir="false" afterPath="$PROJECT_DIR$/resp_message.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/newInstance.pkl" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,11 +13,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/itrobot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="660">
-              <caret line="48" column="54" selection-start-line="48" selection-start-column="44" selection-end-line="48" selection-end-column="54" />
+            <state relative-caret-position="223">
+              <caret line="49" column="24" lean-forward="true" selection-start-line="43" selection-start-column="4" selection-end-line="49" selection-end-column="24" />
               <folding>
                 <element signature="e#37#50#0" expanded="true" />
               </folding>
@@ -27,11 +25,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/resp_message.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="189">
-              <caret line="60" column="17" selection-start-line="60" selection-start-column="17" selection-end-line="60" selection-end-column="17" />
+            <state relative-caret-position="140">
+              <caret line="83" lean-forward="true" selection-start-line="83" selection-end-line="83" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
                 <element signature="e#161#1184#0" />
@@ -62,9 +60,9 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/itrobot.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/resp_message.py" />
+        <option value="$PROJECT_DIR$/itrobot.py" />
       </list>
     </option>
   </component>
@@ -80,9 +78,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="y" value="23" />
-    <option name="width" value="1440" />
-    <option name="height" value="825" />
+    <option name="x" value="173" />
+    <option name="y" value="28" />
+    <option name="width" value="1191" />
+    <option name="height" value="805" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -139,20 +138,22 @@
       <workItem from="1560832856691" duration="1266000" />
       <workItem from="1560840904717" duration="719000" />
       <workItem from="1560911749874" duration="179000" />
+      <workItem from="1561564705040" duration="244000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3343000" />
+    <option name="totallyTimeSpent" value="3587000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="825" extended-state="0" />
+    <frame x="173" y="28" width="1191" height="805" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.123032905" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15143603" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3289855" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -162,7 +163,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.32957748" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.33913043" />
       <window_info anchor="bottom" id="Python Console" order="12" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -199,16 +200,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/itrobot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="660">
-          <caret line="48" column="54" selection-start-line="48" selection-start-column="44" selection-end-line="48" selection-end-column="54" />
-          <folding>
-            <element signature="e#37#50#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
@@ -218,8 +209,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/resp_message.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="60" column="17" selection-start-line="60" selection-start-column="17" selection-end-line="60" selection-end-column="17" />
+        <state relative-caret-position="140">
+          <caret line="83" lean-forward="true" selection-start-line="83" selection-end-line="83" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
             <element signature="e#161#1184#0" />
@@ -228,6 +219,16 @@
             <element signature="e#2069#2788#0" />
             <element signature="e#2840#3100#0" />
             <element signature="e#3134#3189#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/itrobot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="223">
+          <caret line="49" column="24" lean-forward="true" selection-start-line="43" selection-start-column="4" selection-end-line="49" selection-end-column="24" />
+          <folding>
+            <element signature="e#37#50#0" expanded="true" />
           </folding>
         </state>
       </provider>
