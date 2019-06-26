@@ -51,8 +51,7 @@ def send_task():
             itcaht_user_name = newInstance.search_friends(name=name)[0]['UserName']
             current_time = datetime.datetime.now().hour
             if current_time == 7:
-                newInstance.send(f'主人,现在已经7点半啦了，赶紧起床！！！ \n再不起床，小酱就要叫爸爸过来掀被子打你PP啦！！！',
-                                 toUserName=itcaht_user_name)
+                newInstance.send(f'主人,现在已经7点半啦了，赶紧起床！！！ \n再不起床，小酱就要叫爸爸过来掀被子打你PP啦！！！', toUserName=itcaht_user_name)
                 newInstance.send_msg(resp_msg.weather_searche(city), toUserName=itcaht_user_name)
             if current_time == 11:
                 newInstance.send(f'主人,吃完午饭记得要按时午休哦，活力满满的一下午，fighting！！！', toUserName=itcaht_user_name)
@@ -77,11 +76,11 @@ scheduler = BlockingScheduler()
 scheduler.add_job(send_task, 'cron', day_of_week='0-5', hour=7, minute=10)
 scheduler.add_job(send_task, 'cron', day_of_week='0-5', hour=11, minute=40)
 scheduler.add_job(send_task, 'cron', day_of_week='0-5', hour=22, minute=44)
-scheduler.start()
 
 newInstance.auto_login(enableCmdQR=2, hotReload=True, statusStorageDir="newInstance.pkl")
 
 try:
     newInstance.run(debug=True)
+    scheduler.start()
 except Exception:
     itchat.logout()
