@@ -82,10 +82,6 @@ class RespMessage(object):
             return resp.json()['content']
         return "嗯! 你说的对！(傻子模式)"
 
-    def send_msg(self):
-        # 用于定时人物，发送消息
-        return self.weather_searche('上海')
-
     @staticmethod
     def check_id_card_validate(bank_card_num):
         # 校验银行卡号有效性
