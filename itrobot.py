@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # coding=utf-8
+import datetime
+
 import itchat
 import time
 from interval import Interval
 from resp_message import RespMessage
 import static
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 newInstance = itchat.new_instance()
 resp_msg = RespMessage()
@@ -41,13 +44,22 @@ def text_reply(msg):
 
 def send_task():
     """ 发送定时任务 """
-    while True:
-        current_time = time.localtime(time.time())
-        # 定时发送销售
-        if current_time.tm_hour % 1 == 0 and current_time.tm_min % 30 == 0:
-            replay = u'时间: %s' % (resp_msg.get_current_system_time())
-            itchat.send(replay, toUserName="filehelper")
-        time.sleep(1000)
+    name_list = [('fairy', '北京'), ('Sherry🌵', '上海')]
+    for name, city in name_list:
+        try:
+            itcaht_user_name = newInstance.search_friends(name=name)[0]['UserName']
+            current_time = datetime.datetime.now().hour
+            if current_time == 7:
+                newInstance.send(f'主人,现在已经7点半啦了，赶紧起床！！！ \n再不起床，小酱就要叫爸爸过来掀被子打你PP啦！！！',
+                                 toUserName=itcaht_user_name)
+                newInstance.send_msg(resp_msg.weather_searche(city), toUserName=itcaht_user_name)
+            if current_time == 11:
+                newInstance.send(f'主人,吃完午饭记得要按时午休哦，活力满满的一下午，fighting！！！', toUserName=itcaht_user_name)
+            if current_time == 22:
+                newInstance.send(f'主人,现在已经10点多啦了，是时候闭上眼美美睡一觉啦！！！ \n\n\n\t\t\t晚安，么么哒💕',
+                                 toUserName=itcaht_user_name)
+        except Exception as e:
+            print(f'error -> {e}')
 
 
 def lc():
@@ -62,7 +74,13 @@ def ec():
 
 newInstance.auto_login(enableCmdQR=2, hotReload=True, statusStorageDir="newInstance.pkl")
 
+
 try:
+    scheduler = BlockingScheduler()
+    scheduler.add_job(send_task, 'cron', day_of_week='0-5', hour=7, minute=10)
+    scheduler.add_job(send_task, 'cron', day_of_week='0-5', hour=11, minute=40)
+    scheduler.add_job(send_task, 'cron', day_of_week='0-5', hour=22, minute=44)
+    scheduler.start()
     newInstance.run(debug=True)
 except Exception:
     itchat.logout()
