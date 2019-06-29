@@ -1,3 +1,6 @@
+# 消息通知用户
+MSG_NOTICE_ROBOT = 'filehelper'
+
 # 图灵机器人配置
 # API URL
 TURING_ROBOT_URL = "http://openapi.tuling123.com/openapi/api/v2"

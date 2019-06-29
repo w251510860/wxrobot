@@ -38,9 +38,6 @@ def text_reply(msg):
         return resp_msg.weather_searche(text.split(' ')[0])
     else:
         return resp_msg.qingyunke(msg['Text'])
-        # input_msg = msg['Text']
-        # response_msg = resp_msg.turing_robot(input_msg)
-        # return u"{}".format(response_msg)
 
 
 def send_task():
@@ -62,25 +59,9 @@ def send_task():
             print(f'error -> {e}')
 
 
-def lc():
-    print('finish login')
-    itchat.send(u'机器人上线 %s' % resp_msg.get_current_system_time(), toUserName='filehelper')  # 发送内容
-
-
-def ec():
-    print('exit')
-    itchat.send(u'机器人下线 %s ' % resp_msg.get_current_system_time(), toUserName='filehelper')  # 发送内容
-
-
-scheduler = BlockingScheduler()
-scheduler.add_job(send_task, 'cron', day_of_week='0-5', hour=7, minute=10)
-scheduler.add_job(send_task, 'cron', day_of_week='0-5', hour=11, minute=40)
-scheduler.add_job(send_task, 'cron', day_of_week='0-5', hour=22, minute=44)
-
 newInstance.auto_login(enableCmdQR=2, hotReload=True, statusStorageDir="newInstance.pkl")
 
 try:
     newInstance.run(debug=True)
-    scheduler.start()
 except Exception:
     itchat.logout()
