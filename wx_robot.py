@@ -11,10 +11,10 @@ resp_msg = RespMessage()
 
 def run():
     # 程序入口
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(keep_alive, 'cron', hour='0-1,10-11,16-17,20-21')
+    scheduler.start()
     while True:
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(keep_alive, 'cron', hour='0-1,10-11,16-17,20-21')
-        scheduler.start()
         keep_alive()
         print(f'循环一圈...')
 
@@ -40,9 +40,9 @@ def init_wxrobot(schedule=True, *args, **kwargs):
     # 初始化微信机器人,更新好友信息、微信组
     itchat.get_friends(update=True)
     itchat.get_chatrooms(update=True)
-    if schedule:
-        # 开启定时任务
-        init_schedule(schedule_list)
+    # if schedule:
+    #     # 开启定时任务
+    #     init_schedule(schedule_list)
     send_notice('机器人已启动...')
 
 
@@ -76,19 +76,44 @@ def init_schedule(task_dict_list: list):
 @itchat.msg_register('Text')
 def text_reply(msg):
     # 通用文本类聊天接口
-    text = msg.text.strip()
-    if text.lower() == "help":
-        return u"[老爸在修仙，现在我是山大王ψ(｀∇´)ψ]\n输入信息 我们就可以愉快的聊天啦~\n 获取联系方式请回复phone" \
-               u" \n例如:北京天气\n讲个笑话\n故事来一个\n......".format(static.NICKNAME)
-    elif text.startswith("phone"):
-        return u"看在你这么会说话的份上就告诉你吧o(*￣3￣)o\n{}的手机号是:{}\n\n一般人我不告诉他~\n".format(
-            static.NICKNAME, static.PHONE_NUMBER)
-    elif text.split(' ')[0].endswith('座'):
+    text = msg.text.strip().lower()
+    nick_name = msg['User'].NickName
+    from_user = msg.get('FromUserName')
+    print(f'nick_name -> {nick_name} from_user -> {from_user} text -> {text} text type -> {type(text)}')
+    fun = fun_dict.get(text)
+    if fun:
+        return fun
+    if nick_name == 'fairy' and ',' in text:
+        name, content = text.split(',')
+        itchat.send(f'{content}', toUserName=get_uid(name))
+        return '转发成功...'
+    if text == '2':
+        return '请输入您的城市(不需要加上省、市),如:北京 天气'
+    if text == '3':
+        return '请输入您的星座,如: 狮子座'
+    if text == '4':
+        return '请发送以留言+内容,如: 留言,我爱你'
+    if text == '5':
+        if from_user and from_user in chat_list:
+            return '机器人已经开启,请不要重复开启。'
+        if from_user:
+            chat_list.append(from_user)
+            return '聊天机器人开启，如需关闭请发送:close robot'
+        return '机器人正在维护中...'
+    if text == 'clone robot':
+        if from_user:
+            chat_list.remove(from_user)
+    if from_user in chat_list:
+        return resp_msg.qingyunke(text)
+    if text.split(' ')[0].endswith('座'):
         return resp_msg.personal_star(text.split(' ')[0])
-    elif len(text.split(' ')) == 2 and '天气' in text.split(' ')[1]:
+    if len(text.split(' ')) == 2 and '天气' in text.split(' ')[1]:
         return resp_msg.weather_searche(text.split(' ')[0])
-    else:
-        return resp_msg.qingyunke(msg['Text'])
+    if text.startswith('留言'):
+        itchat.send(f'{nick_name}\n{text}', toUserName=get_uid('fairy'))
+        return '留言转发成功...'
+    return u"九酱为您服务,请根据下列编号选择服务:\n【1】获取本人手机号\n【2】查天气\n【3】查星座\n" \
+           u"【4】留言(将会自动转发至本人)\n【5】聊天(请准备好《莫生气》一本以备不时之需)\n"
 
 
 def say_hello_every_day(name):
@@ -100,7 +125,7 @@ def say_hello_every_day(name):
         send_msg(name, resp_msg.personal_star('狮子座'))
     if current_time == 11:
         send_msg(name, f'主人,吃完午饭记得要按时午休哦,活力满满的一下午，fighting！！！')
-    if current_time == 6:
+    if current_time == 18:
         send_msg(name, f'主人,准备吃饭咯')
     if current_time == 21:
         send_msg(name, f'主人,现在已经晚上9点多啦了,准备洗漱一下吧！！！ \n\n\n\t\t\t么么哒💕')
@@ -128,20 +153,33 @@ def get_uid(name):
         return [itchat.search_friends(name=user_name)[0].get('UserName') for user_name in name]
 
 
+# 定时任务列表
 schedule_list = [{
     'cron_time': {'hour': '7', 'minute': '30'},
     'task': say_hello_every_day,
-    'to_name': ['fairy', 'Sherry🌵']
+    'to_name': ['fairy']
 }, {
     'cron_time': {'hour': '11', 'minute': '30'},
     'task': say_hello_every_day,
-    'to_name': ['fairy', 'Sherry🌵']
+    'to_name': ['fairy']
 }, {
+    'cron_time': {'hour': '18', 'minute': '30'},
+    'task': say_hello_every_day,
+    'to_name': ['fairy']
+},{
     'cron_time': {'hour': '22', 'minute': '0'},
     'task': say_hello_every_day,
-    'to_name': ['fairy', 'Sherry🌵']
+    'to_name': ['fairy']
 }, {
     'cron_time': {'hour': '21', 'minute': '0'},
     'task': say_hello_every_day,
-    'to_name': ['fairy', 'Sherry🌵']
+    'to_name': ['fairy']
 }]
+
+# 功能列表
+fun_dict = {
+    '1': resp_msg.phone_num(),
+}
+
+# 聊天列表
+chat_list = []

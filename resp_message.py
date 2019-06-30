@@ -91,3 +91,7 @@ class RespMessage(object):
         if ret.status_code == 200 and ret.json().get('stat', None):
             return ret.json()['validated']
         return '服务已弃用'
+
+    @staticmethod
+    def phone_num():
+        return '记好了,本人手机号为188****2345.嘻嘻,想知道我手机号就给我留言吧！！！'
