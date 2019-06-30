@@ -100,9 +100,10 @@ def text_reply(msg):
             chat_list.append(from_user)
             return '聊天机器人开启，如需关闭请发送:close robot'
         return '机器人正在维护中...'
-    if text == 'clone robot':
-        if from_user:
+    if text == 'close robot':
+        if from_user and from_user in chat_list:
             chat_list.remove(from_user)
+            return '机器人已关闭'
     if from_user in chat_list:
         return resp_msg.qingyunke(text)
     if text.split(' ')[0].endswith('座'):
