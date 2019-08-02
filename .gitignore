@@ -105,3 +105,6 @@ venv.bak/
 
 # pkl
 .pkl
+
+# img
+img/

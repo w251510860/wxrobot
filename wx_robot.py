@@ -1,5 +1,11 @@
 import datetime
+import json
+import os
+import re
+import time
 
+from itchat.content import *
+import pandas as pd
 import itchat
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -9,6 +15,7 @@ from resp_message import RespMessage
 resp_msg = RespMessage()
 
 my_chat = itchat
+face_bug = None
 
 
 def run():
@@ -18,6 +25,7 @@ def run():
     scheduler.start()
     while True:
         keep_alive()
+        time.sleep(30)
         print(f'循环一圈...')
 
 
@@ -46,6 +54,7 @@ def init_wxrobot(schedule=True, *args, **kwargs):
     #     # 开启定时任务
     #     init_schedule(schedule_list)
     send_notice('机器人已启动...')
+    # statistics_friend_by_pandas()
 
 
 def exit_wxrobot():
@@ -75,17 +84,98 @@ def init_schedule(task_dict_list: list):
     print('定时任务已经开启...')
 
 
-@my_chat.msg_register('Text')
+@my_chat.msg_register([TEXT, PICTURE, FRIENDS, CARD, MAP, SHARING, RECORDING, ATTACHMENT, VIDEO], isFriendChat=True,
+                      isGroupChat=False, isMpChat=False)
 def text_reply(msg):
-    # 通用文本类聊天接口
-    text = msg.text.strip().lower()
-    nick_name = msg['User'].NickName
-    from_user = msg.get('FromUserName')
-    if nick_name in ['佩奇牛']:
-        public_chat(text, nick_name, from_user)
-    if nick_name in ['你怎么可以这么帅?']:
-        private_chat(text)
-    print(f'nick_name -> {nick_name} from_user -> {from_user} text -> {text} text type -> {type(text)}')
+    # 通用聊天接口
+    msg_from_user = msg.get('FromUserName')
+
+    msg_nick_name = itchat.search_friends(userName=msg['FromUserName']).get('NickName')
+    msg_to_user = msg.get('ToUserName')
+    try:
+        msg_to_nick_name = itchat.search_friends(userName=msg['ToUserName']).get('NickName')
+    except Exception:
+        msg_to_nick_name = None
+    msg_time_rec = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    msg_id = msg['MsgId']
+    msg_share_url = None
+    msg_content = None
+    if msg['Type'] == 'Text':
+        # 文本累消息
+        msg_content = msg.text.strip().lower()
+        if msg_nick_name in ['佩奇牛']:
+            public_chat(msg_content, msg_nick_name, msg_from_user)
+        if msg_nick_name in ['你怎么可以这么帅?']:
+            private_chat(msg_content)
+        if msg_nick_name in ['水', 'filehelper']:
+            redirect_msg(msg, msg_content, msg_nick_name)
+    elif msg['Type'] in ['Attachment', 'Video', 'Picture', 'Recording']:
+        msg_content = msg['Text'](f'{os.getcwd()}/img/'+msg['FileName'])
+    elif msg['Type'] == 'Card':  # 如果消息是推荐的名片
+        msg_content = msg['RecommendInfo']['NickName'] + '的名片'  # 内容就是推荐人的昵称和性别
+        if msg['RecommendInfo']['Sex'] == 1:
+            msg_content += '性别为男'
+        else:
+            msg_content += '性别为女'
+        print(f"名片 -> {msg['RecommendInfo']}")
+    elif msg['Type'] == 'Map':  # 如果消息为分享的位置信息
+        x, y, location = re.search(
+            "<location x=\"(.*?)\" y=\"(.*?)\".*label=\"(.*?)\".*", msg['OriContent']).group(1, 2, 3)
+        if location is None:
+            msg_content = r"纬度->" + x.__str__() + " 经度->" + y.__str__()  # 内容为详细的地址
+        else:
+            msg_content = r"" + location
+    elif msg['Type'] == 'Sharing':  # 如果消息为分享的音乐或者文章，详细的内容为文章的标题或者是分享的名字
+        msg_content = msg['Text']
+        msg_share_url = msg['Url']  # 记录分享的url
+    # 将信息存储在字典中，每一个msg_id对应一条信息
+    msg_information = {
+        msg_id: {
+            "msg_from": msg_nick_name, "msg_to_user": msg_to_nick_name, "msg_time": msg_time_rec,
+            "msg_time_rec": msg_time_rec, "msg_type": msg["Type"], "msg_content": msg_content,
+            "msg_share_url": msg_share_url
+        }
+    }
+    print(f'content -> {msg_information}')
+
+
+# 这个是用于监听是否有消息撤回
+# @itchat.msg_register(NOTE, isFriendChat=True, isGroupChat=True, isMpChat=True)
+# def information(msg):
+#     # 这里如果这里的msg['Content']中包含消息撤回和id，就执行下面的语句
+#     if '撤回了一条消息' in msg['Content']:
+#         old_msg_id = re.search("\<msgid\>(.*?)\<\/msgid\>", msg['Content']).group(1)   #在返回的content查找撤回的消息的id
+#         old_msg = msg_information.get(old_msg_id)    #得到消息
+#         print(old_msg)
+#         if len(old_msg_id)<11:  # 如果发送的是表情包
+#             itchat.send_file(face_bug, toUserName='filehelper')
+#         else:  # 发送撤回的提示给文件助手
+#             msg_body = "告诉你一个秘密~" + "\n" \
+#                        + old_msg.get('msg_from') + " 撤回了 " + old_msg.get("msg_type") + " 消息" + "\n" \
+#                        + old_msg.get('msg_time_rec') + "\n" \
+#                        + "撤回了什么 ⇣" + "\n" \
+#                        + r"" + old_msg.get('msg_content')
+#             # 如果是分享的文件被撤回了，那么就将分享的url加在msg_body中发送给文件助手
+#             if old_msg['msg_type'] == "Sharing":
+#                 msg_body += "\n就是这个链接➣ " + old_msg.get('msg_share_url')
+#
+#             # 将撤回消息发送到文件助手
+#             itchat.send_msg(msg_body, toUserName='filehelper')
+#             # 有文件的话也要将文件发送回去
+#             if old_msg["msg_type"] == "Picture" \
+#                     or old_msg["msg_type"] == "Recording" \
+#                     or old_msg["msg_type"] == "Video" \
+#                     or old_msg["msg_type"] == "Attachment":
+#                 file = '@fil@%s' % (old_msg['msg_content'])
+#                 itchat.send(msg=file, toUserName='filehelper')
+#                 os.remove(old_msg['msg_content'])
+#             # 删除字典旧消息
+#             msg_information.pop(old_msg_id)
+
+
+def redirect_msg(msg, text, nick_name):
+    # 消息转发
+    my_chat.send(f'{nick_name}\n{text}')
 
 
 def private_chat(text):
@@ -93,11 +183,21 @@ def private_chat(text):
     pass
 
 
-def statistics_friend():
+def statistics_friend_by_pandas():
     # 统计好友数据
     friend_list = my_chat.get_friends(update=True)[0:]
-    # 排除掉自己和微信助手
-    total_friend_list = friend_list[1:]
+    df_friend = pd.DataFrame(friend_list)
+    drop_key = ['MemberList', 'UserName', 'DisplayName', 'ChatRoomId', 'IsOwner', 'EncryChatRoomId', 'KeyWord',
+                'UniFriend', 'Alias', 'Statues', 'AppAccountFlag', 'StarFriend', 'RemarkPYQuanPin', 'RemarkPYInitial',
+                'PYQuanPin', 'PYQuanPin', 'PYInitial', 'OwnerUin', 'VerifyFlag', 'HideInputBarFlag', 'MemberCount',
+                'Uin', 'WebWxPluginSwitch']
+    df_friend.drop(columns=drop_key, axis=1, inplace=True)
+    print(f'df_friend -> {df_friend}')
+
+
+def statistics_friend():
+    # 统计好友数据
+    total_friend_list = my_chat.get_friends(update=True)[0:]
     # 好友总数
     total_friend_no = len(total_friend_list)
     # 统计性别
@@ -202,6 +302,19 @@ def send_msg(name, msg):
         uid_list = get_uid(name)
         for uid in uid_list:
             my_chat.send(msg, toUserName=uid)
+    return msg
+
+
+def send_img(name, path):
+    # 发送图片
+    if isinstance(name, str):
+        uid = get_uid(name)
+        my_chat.send_image(path, toUserName=uid)
+    if isinstance(name, list):
+        uid_list = get_uid(name)
+        for uid in uid_list:
+            my_chat.send_image(path, toUserName=uid)
+    return path
 
 
 def get_uid(name):
