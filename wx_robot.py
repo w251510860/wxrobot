@@ -99,7 +99,7 @@ def text_reply(msg):
     # print(f'content -> {msg_information}')
     print(f'msg_information -> {msg_information}')
     if msg_information['msg_from_nick_name'] in ['水', 'filehelper']:
-        redirect_msg(msg, msg_information, msg_information['fairy'])
+        redirect_msg(msg, msg_information, 'fairy')
 
 
 def extract_msg(msg):
