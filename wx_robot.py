@@ -88,58 +88,64 @@ def init_schedule(task_dict_list: list):
                       isGroupChat=False, isMpChat=False)
 def text_reply(msg):
     # 通用聊天接口
-    msg_from_user = msg.get('FromUserName')
+    msg_information = extract_msg(msg)
+    # if msg_type == 'Text':
+    #     # 文本累消息
+    #     msg_content = msg.text.strip().lower()
+    #     if msg_remark_name in ['佩奇牛']:
+    #         public_chat(msg_content, msg_remark_name, msg_from_user)
+    #     if msg_remark_name in ['你怎么可以这么帅？']:
+    #         private_chat(msg_content)
+    # print(f'content -> {msg_information}')
+    print(f'msg_information -> {msg_information}')
+    if msg_information['msg_from_nick_name'] in ['水', 'filehelper']:
+        redirect_msg(msg, msg_information, msg_information['fairy'])
 
-    msg_nick_name = itchat.search_friends(userName=msg['FromUserName']).get('NickName')
-    msg_to_user = msg.get('ToUserName')
+
+def extract_msg(msg):
+    # 消息处理
+    msg_from_user = msg.get('FromUserName')
+    name = itchat.search_friends(userName=msg['FromUserName'])
+    msg_remark_name = name.get('RemarkName')
+    msg_nick_name = name.get('NickName')
+    msg_time_rec = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     try:
         msg_to_nick_name = itchat.search_friends(userName=msg['ToUserName']).get('NickName')
     except Exception:
-        msg_to_nick_name = None
-    msg_time_rec = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        msg_to_nick_name = '未知朋友'
+    msg_type = msg['Type']
     msg_id = msg['MsgId']
     msg_share_url = None
     msg_content = None
-    if msg['Type'] == 'Text':
-        # 文本累消息
+    if msg_type == 'Text':  # 文本类消息
         msg_content = msg.text.strip().lower()
-        if msg_nick_name in ['佩奇牛']:
-            public_chat(msg_content, msg_nick_name, msg_from_user)
-        if msg_nick_name in ['你怎么可以这么帅?']:
-            private_chat(msg_content)
-        if msg_nick_name in ['水', 'filehelper']:
-            redirect_msg(msg, msg_content, msg_nick_name)
-    elif msg['Type'] in ['Attachment', 'Video', 'Picture', 'Recording']:
-        msg_content = msg['Text'](f'{os.getcwd()}/img/'+msg['FileName'])
-    elif msg['Type'] == 'Card':  # 如果消息是推荐的名片
+    elif msg_type in ['Attachment', 'Video', 'Picture', 'Recording']:    # 图片、视频类型消息
+        msg_content = msg['Text'](f'{os.getcwd()}/img/' + msg['FileName'])
+    elif msg_type == 'Card':  # 如果消息是推荐的名片
         msg_content = msg['RecommendInfo']['NickName'] + '的名片'  # 内容就是推荐人的昵称和性别
         if msg['RecommendInfo']['Sex'] == 1:
-            msg_content += '性别为男'
+            msg_content += '  性别为男'
         else:
-            msg_content += '性别为女'
-        print(f"名片 -> {msg['RecommendInfo']}")
-    elif msg['Type'] == 'Map':  # 如果消息为分享的位置信息
+            msg_content += '  性别为女'
+    elif msg_type == 'Map':  # 如果消息为分享的位置信息
         x, y, location = re.search(
             "<location x=\"(.*?)\" y=\"(.*?)\".*label=\"(.*?)\".*", msg['OriContent']).group(1, 2, 3)
         if location is None:
             msg_content = r"纬度->" + x.__str__() + " 经度->" + y.__str__()  # 内容为详细的地址
         else:
             msg_content = r"" + location
-    elif msg['Type'] == 'Sharing':  # 如果消息为分享的音乐或者文章，详细的内容为文章的标题或者是分享的名字
+    elif msg_type == 'Sharing':  # 如果消息为分享的音乐或者文章，详细的内容为文章的标题或者是分享的名字
         msg_content = msg['Text']
         msg_share_url = msg['Url']  # 记录分享的url
     # 将信息存储在字典中，每一个msg_id对应一条信息
-    msg_information = {
-        msg_id: {
-            "msg_from": msg_nick_name, "msg_to_user": msg_to_nick_name, "msg_time": msg_time_rec,
-            "msg_time_rec": msg_time_rec, "msg_type": msg["Type"], "msg_content": msg_content,
+    return {
+            "msg_from": msg_remark_name, "msg_to_user": msg_to_nick_name, "msg_from_nick_name": msg_nick_name,
+            "msg_time": msg_time_rec, "msg_time_rec": msg_time_rec, "msg_type": msg["Type"], "msg_content": msg_content,
             "msg_share_url": msg_share_url
-        }
     }
-    print(f'content -> {msg_information}')
 
 
-# 这个是用于监听是否有消息撤回
+# 于监听是否有消息撤回
 # @itchat.msg_register(NOTE, isFriendChat=True, isGroupChat=True, isMpChat=True)
 # def information(msg):
 #     # 这里如果这里的msg['Content']中包含消息撤回和id，就执行下面的语句
@@ -173,9 +179,22 @@ def text_reply(msg):
 #             msg_information.pop(old_msg_id)
 
 
-def redirect_msg(msg, text, nick_name):
-    # 消息转发
-    my_chat.send(f'{nick_name}\n{text}')
+def redirect_msg(msg, msg_information, name):
+    content = msg_information['msg_content']
+    # name = msg_information['msg_from_nick_name']
+    from_name = msg_information['msg_from']
+    msg_time_rec = msg_information['msg_time_rec']
+    msg_to_nick_name = msg_information['msg_to_user']
+    msg_type = msg['Type']
+    send_msg(name, f'{msg_time_rec}\n来自{from_name}的消息:')
+    if msg_type == 'Picture':
+        send_img(name, f'{os.getcwd()}/img/' + msg['FileName'])
+    elif msg_type == 'Video':
+        send_video(name, f'{os.getcwd()}/img/' + msg['FileName'])
+    elif msg_type in ['Attachment', 'Recording']:
+        send_field(name, f'{os.getcwd()}/img/' + msg['FileName'])
+    else:
+        send_msg(name, content)
 
 
 def private_chat(text):
@@ -317,6 +336,30 @@ def send_img(name, path):
     return path
 
 
+def send_video(name, path):
+    # 发送图片
+    if isinstance(name, str):
+        uid = get_uid(name)
+        my_chat.send_video(path, toUserName=uid)
+    if isinstance(name, list):
+        uid_list = get_uid(name)
+        for uid in uid_list:
+            my_chat.send_video(path, toUserName=uid)
+    return path
+
+
+def send_field(name, path):
+    # 发送文件
+    if isinstance(name, str):
+        uid = get_uid(name)
+        my_chat.send_file(path, toUserName=uid)
+    if isinstance(name, list):
+        uid_list = get_uid(name)
+        for uid in uid_list:
+            my_chat.send_file(path, toUserName=uid)
+    return path
+
+
 def get_uid(name):
     # 获取用户真实id
     if isinstance(name, str):
@@ -324,7 +367,6 @@ def get_uid(name):
 
     if isinstance(name, list):
         return [my_chat.search_friends(name=user_name)[0].get('UserName') for user_name in name]
-
 
 # 定时任务列表
 schedule_list = [{
