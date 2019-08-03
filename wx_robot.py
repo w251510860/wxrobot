@@ -98,8 +98,10 @@ def text_reply(msg):
     #         private_chat(msg_content)
     # print(f'content -> {msg_information}')
     print(f'msg_information -> {msg_information}')
-    if msg_information['msg_from_nick_name'] in ['水', 'filehelper']:
+    if msg_information['msg_from_nick_name'] in ['水', 'filehelper', '98k1989']:
         redirect_msg(msg, msg_information, 'fairy')
+    if msg_information['msg_from_nick_name'] in ['fairy', '98k1989', 'wayhj']:
+        redirect_msg(msg, msg_information, '水')
 
 
 def extract_msg(msg):
@@ -186,7 +188,6 @@ def redirect_msg(msg, msg_information, name):
     msg_time_rec = msg_information['msg_time_rec']
     msg_to_nick_name = msg_information['msg_to_user']
     msg_type = msg['Type']
-    send_msg(name, f'{msg_time_rec}\n来自{from_name}的消息:')
     if msg_type == 'Picture':
         send_img(name, f'{os.getcwd()}/img/' + msg['FileName'])
     elif msg_type == 'Video':
