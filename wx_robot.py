@@ -50,9 +50,9 @@ def init_wxrobot(schedule=True, *args, **kwargs):
     # 初始化微信机器人,更新好友信息、微信组
     my_chat.get_friends(update=True)
     my_chat.get_chatrooms(update=True)
-    # if schedule:
-    #     # 开启定时任务
-    #     init_schedule(schedule_list)
+    if schedule:
+        # 开启定时任务
+        init_schedule(schedule_list)
     send_notice('机器人已启动...')
     # statistics_friend_by_pandas()
 
@@ -77,7 +77,6 @@ def init_schedule(task_dict_list: list):
         cron_time = task_dict['cron_time']
         task = task_dict['task']
         to_name = task_dict['to_name']
-        print(f'task -> {task}, task type -> {type(task)}')
         scheduler.add_job(task, 'cron', **cron_time, args=[to_name])
 
     scheduler.start()
@@ -89,19 +88,23 @@ def init_schedule(task_dict_list: list):
 def text_reply(msg):
     # 通用聊天接口
     msg_information = extract_msg(msg)
-    # if msg_type == 'Text':
-    #     # 文本累消息
-    #     msg_content = msg.text.strip().lower()
-    #     if msg_remark_name in ['佩奇牛']:
-    #         public_chat(msg_content, msg_remark_name, msg_from_user)
-    #     if msg_remark_name in ['你怎么可以这么帅？']:
-    #         private_chat(msg_content)
+    msg_type = msg_information['msg_type']
+    msg_remark_name = msg_information['msg_from']
+    msg_from_user = msg_information['msg_from_user']
+    if msg_type == 'Text':
+        # 文本类消息
+        msg_content = msg.text.strip().lower()
+        if msg_remark_name in ['杨珊珊', '你怎么可以这么帅？']:
+            resp_person_msg = public_chat(msg_content, msg_remark_name, msg_from_user)
+            send_msg(msg_remark_name, resp_person_msg)
+        # if msg_remark_name in ['你怎么可以这么帅？']:
+        #     private_chat(msg_content)
     # print(f'content -> {msg_information}')
-    print(f'msg_information -> {msg_information}')
-    if msg_information['msg_from_nick_name'] in ['水', 'filehelper', '98k1989']:
-        redirect_msg(msg, msg_information, 'fairy')
-    if msg_information['msg_from_nick_name'] in ['fairy', '98k1989', 'wayhj']:
-        redirect_msg(msg, msg_information, '水')
+    # print(f'msg_information -> {msg_information}')
+    # if msg_information['msg_from_nick_name'] in ['水', 'filehelper', '98k1989']:
+    #     redirect_msg(msg, msg_information, 'fairy')
+    # if msg_information['msg_from_nick_name'] in ['fairy', '98k1989', 'wayhj']:
+    #     redirect_msg(msg, msg_information, '水')
 
 
 def extract_msg(msg):
@@ -143,7 +146,7 @@ def extract_msg(msg):
     return {
             "msg_from": msg_remark_name, "msg_to_user": msg_to_nick_name, "msg_from_nick_name": msg_nick_name,
             "msg_time": msg_time_rec, "msg_time_rec": msg_time_rec, "msg_type": msg["Type"], "msg_content": msg_content,
-            "msg_share_url": msg_share_url
+            "msg_share_url": msg_share_url, 'msg_from_user': msg_from_user
     }
 
 
@@ -302,7 +305,7 @@ def say_hello_every_day(name):
     current_day = datetime.datetime.now().weekday()
     if current_time == 7 and current_day <= 5:
         send_msg(name, f'主人,现在已经7点半啦了，赶紧起床！！！ \n再不起床，小酱就要叫爸爸过来掀被子打你PP啦！！！')
-        send_msg(name, resp_msg.personal_star('狮子座'))
+        send_msg(name, resp_msg.personal_star('天秤座'))
     if current_time == 11:
         send_msg(name, f'主人,吃完午饭记得要按时午休哦,活力满满的一下午，fighting！！！')
     if current_time == 18:
@@ -373,23 +376,23 @@ def get_uid(name):
 schedule_list = [{
     'cron_time': {'hour': '7', 'minute': '30'},
     'task': say_hello_every_day,
-    'to_name': ['fairy']
+    'to_name': ['fairy', 'S OR XS', '杨珊珊', '你怎么可以这么帅？']
 }, {
     'cron_time': {'hour': '11', 'minute': '30'},
     'task': say_hello_every_day,
-    'to_name': ['fairy']
+    'to_name': ['fairy', 'S OR XS', '杨珊珊', '你怎么可以这么帅？']
 }, {
     'cron_time': {'hour': '18', 'minute': '30'},
     'task': say_hello_every_day,
-    'to_name': ['fairy']
+    'to_name': ['fairy', 'S OR XS', '杨珊珊', '你怎么可以这么帅？']
 }, {
     'cron_time': {'hour': '22', 'minute': '0'},
     'task': say_hello_every_day,
-    'to_name': ['fairy']
+    'to_name': ['fairy', 'S OR XS', '杨珊珊', '你怎么可以这么帅？']
 }, {
     'cron_time': {'hour': '21', 'minute': '0'},
     'task': say_hello_every_day,
-    'to_name': ['fairy']
+    'to_name': ['fairy', 'S OR XS', '杨珊珊', '你怎么可以这么帅？']
 }]
 
 # 功能列表
